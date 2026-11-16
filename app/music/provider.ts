@@ -134,9 +134,9 @@ export class AppleMusicProvider implements MusicProvider {
     const url = new URL(ITUNES_SEARCH_API);
     const term = query.trim() || 'pop hits';
     const isRnBSearch = /^(?:r&b|rnb|r&b\/soul)$/i.test(term);
-    const artistTracks = query.trim() && searchAsArtist
-      ? await this.searchArtistTracks(term, signal, storefront)
-      : isRnBSearch ? await this.searchRnBTracks(signal, storefront) : [];
+    const artistTracksPromise = query.trim() && searchAsArtist
+      ? this.searchArtistTracks(term, signal, storefront)
+      : isRnBSearch ? this.searchRnBTracks(signal, storefront) : Promise.resolve([] as MusicTrack[]);
     url.searchParams.set('term', term);
     url.searchParams.set('entity', 'song');
     url.searchParams.set('country', storefront);
@@ -146,9 +146,11 @@ export class AppleMusicProvider implements MusicProvider {
       response = await fetch(url, { signal, headers: { Accept: 'application/json' } });
     } catch (error) {
       if (signal?.aborted) throw error;
+      const artistTracks = await artistTracksPromise;
       if (artistTracks.length) return artistTracks;
       throw new Error('Não foi possível acessar a busca de músicas da Apple. Verifique sua conexão e tente novamente.');
     }
+    const artistTracks = await artistTracksPromise;
     if (response.status === 429) {
       if (artistTracks.length) return artistTracks;
       throw new Error('A Apple limitou temporariamente as buscas. Aguarde e tente novamente.');

@@ -108,7 +108,7 @@ export default function Home() {
           setMessage(error instanceof Error ? error.message : 'Falha ao buscar músicas.');
         }
       }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    }, artistQuery ? 450 : 0);
+    }, artistQuery ? 180 : 0);
     return () => { clearTimeout(timer); controller.abort(); playerRef.current?.destroy(); };
   }, [artistQuery, genre, origin, startRound]);
 
