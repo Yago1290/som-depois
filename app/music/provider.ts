@@ -60,10 +60,13 @@ type ITunesArtist = { artistId?: number; artistName?: string; wrapperType?: stri
 
 const normalizeArtist = (name: string) => name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase().replace(/[.,]/g, '').trim().replace(/\s+/g, ' ');
 
+export function splitArtistCredits(credit: string) {
+  return credit.split(/\s*(?:&|\bx\b|\bfeat\.?\b|\bft\.?\b|\bfeaturing\b|\bwith\b|\be\b|,(?!\s*the creator\b))\s*/i).map(name => name.trim()).filter(Boolean);
+}
+
 export function artistNameMatches(candidate: string, expected: string) {
   const expectedName = normalizeArtist(expected);
-  const normalizedCandidate = normalizeArtist(candidate);
-  return normalizedCandidate === expectedName || candidate.split(/\s*(?:&|,|\bx\b|\bfeat\.?\b|\bft\.?\b|\bfeaturing\b|\bwith\b)\s*/i).some(name => normalizeArtist(name) === expectedName);
+  return normalizeArtist(candidate) === expectedName || splitArtistCredits(candidate).some(name => normalizeArtist(name) === expectedName);
 }
 
 const RNB_ARTISTS = [

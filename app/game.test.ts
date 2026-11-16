@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { AppleMusicProvider, artistNameMatches, filterMusicByGenre, mapITunesSong } from './music/provider';
+import { AppleMusicProvider, artistNameMatches, filterMusicByGenre, mapITunesSong, splitArtistCredits } from './music/provider';
 import { EMPTY_FILTERS, STAGES, chooseDaily, filterTracks, findSongGuess, normalize, scoreForStage, shareResult, songKey, type Track } from './game';
 const catalog:Track[]=[{id:'a',title:'Água Clara',artist:'Maré',artistIds:['mare'],genres:['MPB'],year:2014,language:'pt',popularity:80},{id:'b',title:'Night Drive',artist:'Nova',artistIds:['nova'],genres:['Pop'],year:2004,language:'en',popularity:5}];
 describe('Apple artist catalogue matching',()=>{
  it('matches main and featured artists without case or accent sensitivity',()=>{expect(artistNameMatches('Drake & 21 Savage','drake')).toBe(true);expect(artistNameMatches('Matuê, Raonir Braz','matue')).toBe(true);expect(artistNameMatches('Tyler, The Creator','tyler the creator')).toBe(true);expect(artistNameMatches('The Weeknd','Drake')).toBe(false)});
+ it('shows collaborative credits as separate artists while preserving comma names',()=>{expect(splitArtistCredits('Matuê, Teto & Doode')).toEqual(['Matuê','Teto','Doode']);expect(splitArtistCredits('Tyler, The Creator')).toEqual(['Tyler, The Creator'])});
  it('loads an artist catalogue through Apple artist search and lookup',async()=>{
   const fetchMock=vi.spyOn(globalThis,'fetch').mockImplementation(async input=>{
    const url=new URL(String(input));
